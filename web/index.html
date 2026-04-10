@@ -4,35 +4,29 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NYC DOT Street Width ROW</title>
-
-  <!-- Leaflet CSS: styles the map tiles and controls -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
-  <!-- Your own stylesheet -->
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
   <div id="app">
 
-    <!-- Left sidebar: shows segment data when you click a street -->
-    <div id="sidebar">
-      <h1>Street Width ROW</h1>
-      <div id="panel">
-        <p id="placeholder">Click a street segment to see its data.</p>
-      </div>
+    <div id="topbar">
+      <h1>NYC DOT — Street Width ROW Viewer</h1>
+      <span>5 Boroughs · 20 ft intervals · Mock Data</span>
     </div>
 
-    <!-- Right side: the map fills this div -->
-    <div id="map"></div>
+    <div id="body">
+      <div id="sidebar">
+        <div class="sidebar-label">Segment Info</div>
+        <div id="panel">
+          <p id="placeholder">Click a street segment on the map to view its ROW breakdown.</p>
+        </div>
+      </div>
+      <div id="map"></div>
+    </div>
 
   </div>
-
-  <!-- Leaflet JS: the mapping library -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-  <!-- Your own JavaScript -->
   <script src="app.js"></script>
-
 </body>
 </html>
