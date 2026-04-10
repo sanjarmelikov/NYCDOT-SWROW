@@ -18,6 +18,9 @@ lib/
 lib64/
 parts/
 sdist/
+
+# Large data files
+data /raw/SIDEWALK_LINE_20260410.geojson
 var/
 wheels/
 share/python-wheels/

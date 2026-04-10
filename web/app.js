@@ -75,16 +75,36 @@ function showPanel(props) {
   `;
 }
 
-// Load the mock GeoJSON onto the map
-L.geoJSON(mockData, {
-  style: {
-    color: '#4fc3f7',
-    weight: 5
-  },
-  onEachFeature: (feature, layer) => {
-    // Attach a click listener to every segment
-    layer.on('click', () => {
-      showPanel(feature.properties);
-    });
-  }
-}).addTo(map);
+// Load the real GeoJSON data from the data folder
+fetch('../data%20/raw/SIDEWALK_LINE_20260410.geojson')
+  .then(response => response.json())
+  .then(data => {
+    // Load the GeoJSON onto the map
+    L.geoJSON(data, {
+      style: {
+        color: '#4fc3f7',
+        weight: 5
+      },
+      onEachFeature: (feature, layer) => {
+        // Attach a click listener to every segment
+        layer.on('click', () => {
+          showPanel(feature.properties);
+        });
+      }
+    }).addTo(map);
+  })
+  .catch(error => {
+    console.error('Error loading GeoJSON:', error);
+    // Fallback to mock data if fetch fails
+    L.geoJSON(mockData, {
+      style: {
+        color: '#ff0000',
+        weight: 5
+      },
+      onEachFeature: (feature, layer) => {
+        layer.on('click', () => {
+          showPanel(feature.properties);
+        });
+      }
+    }).addTo(map);
+  });
