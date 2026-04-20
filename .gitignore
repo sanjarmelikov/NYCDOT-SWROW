@@ -212,3 +212,11 @@ __marimo__/
 # Project outputs
 data/processed/
 out/
+
+# Local workspace files (duplicates, archives, editor state)
+.claude/
+.vscode/
+/*.zip
+/*.docx
+/NYC_Planimetric_Database__*.geojson
+/SIDEWALK_LINE_*.geojson
