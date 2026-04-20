@@ -20,7 +20,7 @@ parts/
 sdist/
 
 # Large data files
-data /raw/SIDEWALK_LINE_20260410.geojson
+data/raw/
 var/
 wheels/
 share/python-wheels/
@@ -208,3 +208,7 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Project outputs
+data/processed/
+out/
