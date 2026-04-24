@@ -59,11 +59,11 @@ fetch('data/lineseg.geojson')
   .then(r => r.json())
   .then(data => {
     const layer = L.geoJSON(data, {
-      style: { color: '#4fc3f7', weight: 3, opacity: 0.8 },
+      style: { color: '#ffb74d', weight: 3, opacity: 0.8 },
       onEachFeature: (feature, lyr) => {
         lyr.on('click', () => showPanel(feature.properties));
-        lyr.on('mouseover', () => lyr.setStyle({ color: '#81c784', weight: 6 }));
-        lyr.on('mouseout',  () => lyr.setStyle({ color: '#4fc3f7', weight: 3 }));
+        lyr.on('mouseover', () => lyr.setStyle({ color: '#ffffff', weight: 6 }));
+        lyr.on('mouseout',  () => lyr.setStyle({ color: '#ffb74d', weight: 3 }));
       }
     }).addTo(map);
     map.fitBounds(layer.getBounds());
