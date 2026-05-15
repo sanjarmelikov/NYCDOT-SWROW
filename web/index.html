@@ -17,7 +17,19 @@
 
     <div id="body">
       <div id="sidebar">
-        <div class="sidebar-label">Segment Info</div>
+        <div class="sidebar-label">Filters</div>
+        <div id="filters">
+          <input id="search" type="text" placeholder="Search street name…" autocomplete="off" />
+          <select id="borough-filter">
+            <option value="">All Boroughs</option>
+            <option value="manhattan">Manhattan</option>
+            <option value="brooklyn">Brooklyn</option>
+            <option value="queens">Queens</option>
+            <option value="bronx">Bronx</option>
+            <option value="staten island">Staten Island</option>
+          </select>
+        </div>
+        <div class="sidebar-label" style="margin-top:20px;">Segment Info</div>
         <div id="panel">
           <p id="placeholder">Click a street segment on the map to view its ROW breakdown.</p>
         </div>

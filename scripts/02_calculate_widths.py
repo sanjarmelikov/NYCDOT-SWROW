@@ -22,6 +22,7 @@ PROC = ROOT / "data" / "processed"
 INTERVAL_FT = 20.0
 HALF_TRANSECT_FT = 60.0          # initial cast length before clipping
 ENDPOINT_BUFFER_FT = 15.0        # skip points this close to line endpoints
+DEFAULT_SIDEWALK_FT = 15.0       # fallback when no sidewalk polygon is found
 
 
 # ---------- geometry helpers ----------
@@ -128,8 +129,11 @@ def run():
     sw_geoms = sw.geometry.tolist(); sw_tree = STRtree(sw_geoms) if sw_geoms else None
     md_geoms = md.geometry.tolist(); md_tree = STRtree(md_geoms) if md_geoms else None
 
+    LOCAL_BUFFER = HALF_TRANSECT_FT + 10.0  # ft around each centerline for pre-filtering
+
     records = []
     seg_id = 0
+    done = 0
     for _, row in cl.iterrows():
         line = row.geometry
         if line is None or line.is_empty:
@@ -143,6 +147,15 @@ def run():
         if length < INTERVAL_FT:
             continue
 
+        # pre-filter polygons to only those near this centerline
+        line_buf = line.buffer(LOCAL_BUFFER)
+        l_sw = [sw_geoms[i] for i in (sw_tree.query(line_buf) if sw_tree else [])]
+        l_rb = [rb_geoms[i] for i in (rb_tree.query(line_buf) if rb_tree else [])]
+        l_md = [md_geoms[i] for i in (md_tree.query(line_buf) if md_tree else [])]
+        loc_sw_tree = STRtree(l_sw) if l_sw else None
+        loc_rb_tree = STRtree(l_rb) if l_rb else None
+        loc_md_tree = STRtree(l_md) if l_md else None
+
         trafdir = str(row.get("trafdir", "TW")).strip() or "TW"
         dir_sign = -1 if trafdir == "TF" else 1
 
@@ -154,17 +167,15 @@ def run():
             if left_arm is None:
                 dist += INTERVAL_FT; continue
 
-            # ---- OPTION A: clip each arm at its far sidewalk edge ----
-            left_arm_c,  left_sw_raw  = clip_arm_at_sidewalk(left_arm,  sw_tree, sw_geoms)
-            right_arm_c, right_sw_raw = clip_arm_at_sidewalk(right_arm, sw_tree, sw_geoms)
-            # rebuilt clipped transect = left_outer -> center -> right_outer
+            left_arm_c,  left_sw_raw  = clip_arm_at_sidewalk(left_arm,  loc_sw_tree, l_sw)
+            right_arm_c, right_sw_raw = clip_arm_at_sidewalk(right_arm, loc_sw_tree, l_sw)
             full_transect = LineString([
                 left_arm_c.coords[-1],
                 right_arm_c.coords[-1]
             ])
 
-            roadbed_ft = length_inside(full_transect, rb_tree, rb_geoms)
-            median_ft  = length_inside(full_transect, md_tree, md_geoms)
+            roadbed_ft = length_inside(full_transect, loc_rb_tree, l_rb)
+            median_ft  = length_inside(full_transect, loc_md_tree, l_md)
 
             # classify left/right using the cross product sign * direction
             cross = tangent[0]*perp[1] - tangent[1]*perp[0]
@@ -173,6 +184,12 @@ def run():
                 left_sw_ft, right_sw_ft = left_sw_raw, right_sw_raw
             else:
                 left_sw_ft, right_sw_ft = right_sw_raw, left_sw_raw
+
+            # fall back to default sidewalk width when no polygon was found
+            if left_sw_ft == 0:
+                left_sw_ft = DEFAULT_SIDEWALK_FT
+            if right_sw_ft == 0:
+                right_sw_ft = DEFAULT_SIDEWALK_FT
 
             total_row_ft = roadbed_ft + median_ft + left_sw_ft + right_sw_ft
 
@@ -192,6 +209,10 @@ def run():
             })
             seg_id += 1
             dist += INTERVAL_FT
+
+        done += 1
+        if done % 5000 == 0:
+            print(f"  {done}/{len(cl)} centerlines processed ({seg_id} segments so far)")
 
     out = gpd.GeoDataFrame(records, geometry="geometry", crs=cl.crs)
     out_path = PROC / "segments.gpkg"

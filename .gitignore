@@ -220,3 +220,6 @@ out/
 /*.docx
 /NYC_Planimetric_Database__*.geojson
 /SIDEWALK_LINE_*.geojson
+
+# Per-borough GeoJSONs are too large for GitHub — tiles are used instead
+web/data/lineseg_*.geojson

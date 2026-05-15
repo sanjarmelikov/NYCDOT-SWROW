@@ -5,7 +5,9 @@ import geopandas as gpd
 ROOT = Path(__file__).resolve().parent.parent
 PROC = ROOT / "data" / "processed"
 OUT  = ROOT / "out"
+WEB  = ROOT / "web" / "data"
 OUT.mkdir(parents=True, exist_ok=True)
+WEB.mkdir(parents=True, exist_ok=True)
 
 BORO = {1: "manhattan", 2: "bronx", 3: "brooklyn", 4: "queens", 5: "staten_island"}
 
@@ -28,10 +30,11 @@ def run():
     for _, name in BORO.items():
         sub = seg[seg["borough"] == name]
         if len(sub):
-            p = OUT / f"lineseg_{name}.geojson"
-            if p.exists(): p.unlink()
-            sub.to_file(p, driver="GeoJSON")
-            print(f"  {name}: {len(sub)}")
+            for dest in (OUT, WEB):
+                p = dest / f"lineseg_{name}.geojson"
+                if p.exists(): p.unlink()
+                sub.to_file(p, driver="GeoJSON")
+            print(f"  {name}: {len(sub)} segments")
 
 
 if __name__ == "__main__":
